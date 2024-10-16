@@ -255,7 +255,13 @@ __rte_experimental
 static inline bool
 rte_bitset_test(const uint64_t *bitset, size_t bit_num)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __RTE_BITSET_DELEGATE(rte_bit_test, bitset, bit_num);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	return false;
+#endif
 }
 
 /**
@@ -277,7 +283,12 @@ __rte_experimental
 static inline void
 rte_bitset_set(uint64_t *bitset, size_t bit_num)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE(rte_bit_set, bitset, bit_num);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+#endif
 }
 
 /**
@@ -299,7 +310,12 @@ __rte_experimental
 static inline void
 rte_bitset_clear(uint64_t *bitset, size_t bit_num)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE(rte_bit_clear, bitset, bit_num);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+#endif
 }
 
 /**
@@ -323,7 +339,13 @@ __rte_experimental
 static inline void
 rte_bitset_assign(uint64_t *bitset, size_t bit_num, bool bit_value)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE_N(rte_bit_assign, bitset, bit_num, bit_value);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(bit_value);
+#endif
 }
 
 /**
@@ -345,7 +367,12 @@ __rte_experimental
 static inline void
 rte_bitset_flip(uint64_t *bitset, size_t bit_num)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE(rte_bit_flip, bitset, bit_num);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+#endif
 }
 
 /**
@@ -370,7 +397,14 @@ __rte_experimental
 static inline bool
 rte_bitset_atomic_test(const uint64_t *bitset, size_t bit_num, int memory_order)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __RTE_BITSET_DELEGATE_N(rte_bit_atomic_test, bitset, bit_num, memory_order);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(memory_order);
+	return false;
+#endif
 }
 
 /**
@@ -399,7 +433,13 @@ __rte_experimental
 static inline void
 rte_bitset_atomic_set(uint64_t *bitset, size_t bit_num, int memory_order)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE_N(rte_bit_atomic_set, bitset, bit_num, memory_order);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(memory_order);
+#endif
 }
 
 /**
@@ -428,7 +468,13 @@ __rte_experimental
 static inline void
 rte_bitset_atomic_clear(uint64_t *bitset, size_t bit_num, int memory_order)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE_N(rte_bit_atomic_clear, bitset, bit_num, memory_order);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(memory_order);
+#endif
 }
 
 /**
@@ -459,7 +505,14 @@ __rte_experimental
 static inline void
 rte_bitset_atomic_assign(uint64_t *bitset, size_t bit_num, bool bit_value, int memory_order)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE_N(rte_bit_atomic_assign, bitset, bit_num, bit_value, memory_order);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(bit_value);
+	RTE_SET_USED(memory_order);
+#endif
 }
 
 /**
@@ -488,7 +541,13 @@ __rte_experimental
 static inline void
 rte_bitset_atomic_flip(uint64_t *bitset, size_t bit_num, int memory_order)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	__RTE_BITSET_DELEGATE_N(rte_bit_atomic_flip, bitset, bit_num, memory_order);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(bit_num);
+	RTE_SET_USED(memory_order);
+#endif
 }
 
 /**
@@ -524,7 +583,12 @@ __rte_experimental
 static inline void
 rte_bitset_clear_all(uint64_t *bitset, size_t size)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	rte_bitset_init(bitset, size);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+#endif
 }
 
 /**
@@ -576,7 +640,13 @@ __rte_experimental
 static inline size_t
 rte_bitset_count_clear(const uint64_t *bitset, size_t size)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return size - rte_bitset_count_set(bitset, size);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	return 0;
+#endif
 }
 
 #define __RTE_BITSET_FIND_FLAG_FIND_CLEAR (1U << 0)
@@ -638,6 +708,7 @@ static inline ssize_t
 __rte_bitset_find(const uint64_t *bitset, size_t size, size_t start_bit, size_t len,
 		unsigned int flags)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	bool find_clear = flags & __RTE_BITSET_FIND_FLAG_FIND_CLEAR;
 	bool may_wrap = flags & __RTE_BITSET_FIND_FLAG_WRAP;
 	bool does_wrap = (start_bit + len) > size;
@@ -658,6 +729,14 @@ __rte_bitset_find(const uint64_t *bitset, size_t size, size_t start_bit, size_t 
 		rc = __rte_bitset_find_nowrap(bitset, size, start_bit, len, find_clear);
 
 	return rc;
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	RTE_SET_USED(start_bit);
+	RTE_SET_USED(len);
+	RTE_SET_USED(flags);
+	return 0;
+#endif
 }
 
 /**
@@ -681,7 +760,13 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_first_set(const uint64_t *bitset, size_t size)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, 0, size, 0);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	return 0;
+#endif
 }
 
 /**
@@ -711,7 +796,15 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_set(const uint64_t *bitset, size_t size, size_t start_bit, size_t len)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, start_bit, len, 0);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	RTE_SET_USED(start_bit);
+	RTE_SET_USED(len);
+	return 0;
+#endif
 }
 
 /**
@@ -742,7 +835,15 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_set_wrap(const uint64_t *bitset, size_t size, size_t start_bit, size_t len)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, start_bit, len, __RTE_BITSET_FIND_FLAG_WRAP);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	RTE_SET_USED(start_bit);
+	RTE_SET_USED(len);
+	return 0;
+#endif
 }
 
 /**
@@ -766,7 +867,13 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_first_clear(const uint64_t *bitset, size_t size)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, 0, size, __RTE_BITSET_FIND_FLAG_FIND_CLEAR);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	return 0;
+#endif
 }
 
 /**
@@ -796,7 +903,15 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_clear(const uint64_t *bitset, size_t size, size_t start_bit, size_t len)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, start_bit, len, __RTE_BITSET_FIND_FLAG_FIND_CLEAR);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	RTE_SET_USED(start_bit);
+	RTE_SET_USED(len);
+	return 0;
+#endif
 }
 
 /**
@@ -827,8 +942,16 @@ __rte_experimental
 static inline ssize_t
 rte_bitset_find_clear_wrap(const uint64_t *bitset, size_t size, size_t start_bit, size_t len)
 {
+#ifdef ALLOW_EXPERIMENTAL_API
 	return __rte_bitset_find(bitset, size, start_bit, len,
 		__RTE_BITSET_FIND_FLAG_FIND_CLEAR | __RTE_BITSET_FIND_FLAG_WRAP);
+#else
+	RTE_SET_USED(bitset);
+	RTE_SET_USED(size);
+	RTE_SET_USED(start_bit);
+	RTE_SET_USED(len);
+	return 0;
+#endif
 }
 
 /**
