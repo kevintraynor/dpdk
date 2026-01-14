@@ -886,6 +886,23 @@ out:
 	return rc;
 }
 
+static void
+eal_intr_source_free(struct rte_intr_source *src)
+{
+	struct rte_intr_callback *cb, *next;
+
+	/* Free all callbacks */
+	for (cb = TAILQ_FIRST(&src->callbacks); cb; cb = next) {
+		next = TAILQ_NEXT(cb, next);
+		TAILQ_REMOVE(&src->callbacks, cb, next);
+		free(cb);
+	}
+
+	/* Free the interrupt source */
+	rte_intr_instance_free(src->intr_handle);
+	free(src);
+}
+
 static int
 eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 {
@@ -915,6 +932,23 @@ eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 		if (src == NULL){
 			rte_spinlock_unlock(&intr_lock);
 			continue;
+		}
+
+		/* Check for error conditions on the fd before processing. */
+		if (events[n].events & (EPOLLRDHUP | EPOLLERR | EPOLLHUP)) {
+			EAL_LOG(WARNING, "Disconnect condition on fd %d "
+				"(events=0x%x), removing interrupt source",
+				events[n].data.fd, events[n].events);
+			/*
+			 * There is an error or a hangup. Remove the
+			 * interrupt source and return to force the wait list
+			 * to be rebuilt.
+			 */
+			TAILQ_REMOVE(&intr_sources, src, next);
+			rte_spinlock_unlock(&intr_lock);
+
+			eal_intr_source_free(src);
+			return -1;
 		}
 
 		/* mark this interrupt source as active and release the lock. */
@@ -956,7 +990,9 @@ eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 			 * for epoll_wait.
 			 */
 			bytes_read = read(events[n].data.fd, &buf, bytes_read);
-			if (bytes_read < 0) {
+			if (bytes_read > 0) {
+				call = true;
+			} else if (bytes_read < 0) {
 				if (errno == EINTR || errno == EWOULDBLOCK)
 					continue;
 
@@ -964,29 +1000,18 @@ eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 					"descriptor %d: %s",
 					events[n].data.fd,
 					strerror(errno));
-				/*
-				 * The device is unplugged or buggy, remove
-				 * it as an interrupt source and return to
-				 * force the wait list to be rebuilt.
-				 */
+			} else { /* bytes == 0 */
+				EAL_LOG(WARNING, "Read nothing from file "
+					"descriptor %d", events[n].data.fd);
+			}
+			if (bytes_read <= 0) {
 				rte_spinlock_lock(&intr_lock);
 				TAILQ_REMOVE(&intr_sources, src, next);
 				rte_spinlock_unlock(&intr_lock);
 
-				for (cb = TAILQ_FIRST(&src->callbacks); cb;
-							cb = next) {
-					next = TAILQ_NEXT(cb, next);
-					TAILQ_REMOVE(&src->callbacks, cb, next);
-					free(cb);
-				}
-				rte_intr_instance_free(src->intr_handle);
-				free(src);
+				eal_intr_source_free(src);
 				return -1;
-			} else if (bytes_read == 0)
-				EAL_LOG(ERR, "Read nothing from file "
-					"descriptor %d", events[n].data.fd);
-			else
-				call = true;
+			}
 		}
 
 		/* grab a lock, again to call callbacks and update status. */
