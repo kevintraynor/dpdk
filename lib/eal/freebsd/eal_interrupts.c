@@ -768,3 +768,10 @@ int rte_thread_is_intr(void)
 {
 	return rte_thread_equal(intr_thread, rte_thread_self());
 }
+
+RTE_EXPORT_EXPERIMENTAL_SYMBOL(rte_intr_active_events, 26.03)
+uint32_t
+rte_intr_active_events(void)
+{
+	return 0;
+}

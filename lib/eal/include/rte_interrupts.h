@@ -39,6 +39,11 @@ struct rte_intr_handle;
 #define RTE_INTR_VEC_ZERO_OFFSET      0
 #define RTE_INTR_VEC_RXTX_OFFSET      1
 
+/** Interrupt event flags returned by rte_intr_active_events() */
+#define RTE_INTR_EVENT_IN    (1 << 0)  /**< Data available to read */
+#define RTE_INTR_EVENT_ERR   (1 << 1)  /**< Error condition on fd */
+#define RTE_INTR_EVENT_HUP   (1 << 2)  /**< Hang up / disconnect */
+
 /**
  * The interrupt source type, e.g. UIO, VFIO, ALARM etc.
  */
@@ -195,6 +200,23 @@ int rte_intr_ack(const struct rte_intr_handle *intr_handle);
  *  - zero in case of process context
  */
 int rte_thread_is_intr(void);
+
+/**
+ * Return the event flags for the interrupt currently being processed.
+ *
+ * @warning
+ * @b EXPERIMENTAL: this API may change without prior notice.
+ *
+ * Must be called from an interrupt callback running on the EAL
+ * interrupt thread. The returned value is a bitmask of
+ * RTE_INTR_EVENT_* flags.
+ *
+ * @return
+ *   Active event flags, or 0 if not in interrupt context or
+ *   on platforms that do not support this feature.
+ */
+__rte_experimental
+uint32_t rte_intr_active_events(void);
 
 /**
  * It allocates memory for interrupt instance. API takes flag as an argument

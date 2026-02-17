@@ -40,6 +40,8 @@
 
 static RTE_DEFINE_PER_LCORE(int, _epfd) = -1; /**< epoll fd per thread */
 
+static uint32_t active_events; /**< epoll events for active interrupt */
+
 /**
  * union for pipe fds.
  */
@@ -886,6 +888,20 @@ out:
 	return rc;
 }
 
+static uint32_t
+epoll_to_intr_events(uint32_t epoll_events)
+{
+	uint32_t ev = 0;
+
+	if (epoll_events & EPOLLIN)
+		ev |= RTE_INTR_EVENT_IN;
+	if (epoll_events & EPOLLERR)
+		ev |= RTE_INTR_EVENT_ERR;
+	if (epoll_events & (EPOLLHUP | EPOLLRDHUP))
+		ev |= RTE_INTR_EVENT_HUP;
+	return ev;
+}
+
 static void
 eal_intr_source_remove_and_free(struct rte_intr_source *src)
 {
@@ -1013,7 +1029,7 @@ eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 		rte_spinlock_lock(&intr_lock);
 
 		if (call) {
-
+			active_events = epoll_to_intr_events(events[n].events);
 			/* Finally, call all callbacks. */
 			TAILQ_FOREACH(cb, &src->callbacks, next) {
 
@@ -1027,6 +1043,7 @@ eal_intr_process_interrupts(struct epoll_event *events, int nfds)
 				/*get the lock back. */
 				rte_spinlock_lock(&intr_lock);
 			}
+			active_events = 0;
 		}
 		/* we done with that interrupt source, release it. */
 		src->active = 0;
@@ -1640,4 +1657,14 @@ RTE_EXPORT_SYMBOL(rte_thread_is_intr)
 int rte_thread_is_intr(void)
 {
 	return rte_thread_equal(intr_thread, rte_thread_self());
+}
+
+RTE_EXPORT_EXPERIMENTAL_SYMBOL(rte_intr_active_events, 26.03)
+uint32_t
+rte_intr_active_events(void)
+{
+	if (rte_thread_is_intr())
+		return active_events;
+
+	return 0;
 }
