@@ -9358,7 +9358,7 @@ static void cmd_dump_mbuf_history_parsed(void *parsed_result,
 			cmdline_printf(cl,
 					"Failed to find mempool '%s'\n",
 					res->name);
-			return;
+			goto out_close;
 		}
 		rte_mbuf_history_dump_mempool(out, mp);
 		if (out != stdout)
@@ -9371,7 +9371,7 @@ static void cmd_dump_mbuf_history_parsed(void *parsed_result,
 		if (sscanf(res->obj, "0x%" SCNxPTR, &mbuf_addr) != 1) {
 			cmdline_printf(cl,
 					"Invalid mbuf pointer format. Use 0x<address>\n");
-			return;
+			goto out_close;
 		}
 		mbuf = (struct rte_mbuf *)mbuf_addr;
 		rte_mbuf_history_dump(out, mbuf);
@@ -9381,6 +9381,7 @@ static void cmd_dump_mbuf_history_parsed(void *parsed_result,
 					mbuf, res->file);
 	}
 
+out_close:
 	if (out != stdout)
 		fclose(out);
 }
