@@ -3569,6 +3569,11 @@ parse_dcb_token_value(char *token_str,
 		split_str[split_num++] = token;
 	} while (1);
 
+	if (split_num == 0) {
+		fprintf(stderr, "Bad Argument: no arguments provided\n");
+		return -1;
+	}
+
 	/* parse fixed parameter "pfc-en" first. */
 	token = split_str[0];
 	if (strcmp(token, "on") == 0)
