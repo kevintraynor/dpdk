@@ -313,6 +313,12 @@ __rte_internal
 struct rte_devargs *rte_bus_find_devargs(const struct rte_bus *bus, const char *dev_name);
 
 /**
+ * Indicate if a device should be skipped during probing of a bus.
+ */
+__rte_internal
+bool rte_bus_is_ignored_device(const struct rte_bus *bus, const char *dev_name);
+
+/**
  * Helper for Bus registration.
  * The constructor has higher priority than PMD constructors.
  */
