@@ -233,23 +233,6 @@ typedef int (*rte_bus_sigbus_handler_t)(const void *failure_addr);
 typedef int (*rte_bus_cleanup_t)(void);
 
 /**
- * Bus scan policies
- */
-enum rte_bus_scan_mode {
-	RTE_BUS_SCAN_UNDEFINED,
-	RTE_BUS_SCAN_ALLOWLIST,
-	RTE_BUS_SCAN_BLOCKLIST,
-};
-
-/**
- * A structure used to configure bus operations.
- */
-struct rte_bus_conf {
-	enum rte_bus_scan_mode scan_mode; /**< Scan policy. */
-};
-
-
-/**
  * Get common iommu class of the all the devices on the bus. The bus may
  * check that those devices are attached to iommu driver.
  * If no devices are attached to the bus. The bus may return with don't care
@@ -277,7 +260,6 @@ struct rte_bus {
 	rte_bus_devargs_parse_t devargs_parse; /**< Parse bus devargs */
 	rte_dev_dma_map_t dma_map;   /**< DMA map for device in the bus */
 	rte_dev_dma_unmap_t dma_unmap; /**< DMA unmap for device in the bus */
-	struct rte_bus_conf conf;    /**< Bus configuration */
 	rte_bus_get_iommu_class_t get_iommu_class; /**< Get iommu class */
 	rte_dev_iterate_t dev_iterate; /**< Device iterator. */
 	rte_bus_hot_unplug_handler_t hot_unplug_handler;

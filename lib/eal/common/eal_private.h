@@ -470,6 +470,37 @@ int rte_eal_memory_detach(void);
 struct rte_bus *rte_bus_find_by_device_name(const char *str);
 
 /**
+ * Bus scan policies
+ */
+enum rte_bus_scan_mode {
+	RTE_BUS_SCAN_UNDEFINED,
+	RTE_BUS_SCAN_ALLOWLIST,
+	RTE_BUS_SCAN_BLOCKLIST,
+};
+
+/**
+ * Retrieve the current bus scanning mode.
+ *
+ * @return
+ *   The current bus scanning mode.
+ */
+enum rte_bus_scan_mode rte_bus_scan_mode_get(void);
+
+/**
+ * Change the bus scanning mode.
+ * Changing the mode can only be done once from undefined to allow list or to block list.
+ * No change from allow to block (or vice versa) is allowed.
+ *
+ * @param scan_mode
+ *   The scanning mode to apply.
+ *
+ * @return
+ *   0 on successful change.
+ *   < 0 on failure.
+ */
+int rte_bus_scan_mode_set(enum rte_bus_scan_mode scan_mode);
+
+/**
  * For each device on the buses, call the driver-specific function for
  * device cleanup.
  *

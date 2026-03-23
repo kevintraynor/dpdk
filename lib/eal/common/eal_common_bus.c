@@ -18,6 +18,8 @@
 static struct rte_bus_list rte_bus_list =
 	TAILQ_HEAD_INITIALIZER(rte_bus_list);
 
+static enum rte_bus_scan_mode bus_scan_mode;
+
 RTE_EXPORT_SYMBOL(rte_bus_name)
 const char *
 rte_bus_name(const struct rte_bus *bus)
@@ -252,7 +254,7 @@ rte_bus_is_ignored_device(const struct rte_bus *bus, const char *dev_name)
 {
 	struct rte_devargs *devargs = rte_bus_find_devargs(bus, dev_name);
 
-	switch (bus->conf.scan_mode) {
+	switch (rte_bus_scan_mode_get()) {
 	case RTE_BUS_SCAN_ALLOWLIST:
 		if (devargs && devargs->policy == RTE_DEV_ALLOWED)
 			return false;
@@ -264,6 +266,22 @@ rte_bus_is_ignored_device(const struct rte_bus *bus, const char *dev_name)
 		break;
 	}
 	return true;
+}
+
+enum rte_bus_scan_mode
+rte_bus_scan_mode_get(void)
+{
+	return bus_scan_mode;
+}
+
+int
+rte_bus_scan_mode_set(enum rte_bus_scan_mode scan_mode)
+{
+	if (bus_scan_mode != RTE_BUS_SCAN_UNDEFINED)
+		return -EINVAL;
+
+	bus_scan_mode = scan_mode;
+	return 0;
 }
 
 /*
