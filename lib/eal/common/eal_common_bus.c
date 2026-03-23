@@ -252,18 +252,23 @@ RTE_EXPORT_INTERNAL_SYMBOL(rte_bus_is_ignored_device)
 bool
 rte_bus_is_ignored_device(const struct rte_bus *bus, const char *dev_name)
 {
+	const struct internal_config *internal_conf = eal_get_internal_configuration();
 	struct rte_devargs *devargs = rte_bus_find_devargs(bus, dev_name);
+	enum rte_bus_scan_mode scan_mode = rte_bus_scan_mode_get();
 
-	switch (rte_bus_scan_mode_get()) {
-	case RTE_BUS_SCAN_ALLOWLIST:
+	if (scan_mode == RTE_BUS_SCAN_UNDEFINED) {
+		if (internal_conf->no_auto_probing != 0)
+			scan_mode = RTE_BUS_SCAN_ALLOWLIST;
+		else
+			scan_mode = RTE_BUS_SCAN_BLOCKLIST;
+	}
+
+	if (scan_mode == RTE_BUS_SCAN_ALLOWLIST) {
 		if (devargs && devargs->policy == RTE_DEV_ALLOWED)
 			return false;
-		break;
-	case RTE_BUS_SCAN_UNDEFINED:
-	case RTE_BUS_SCAN_BLOCKLIST:
+	} else {
 		if (devargs == NULL || devargs->policy != RTE_DEV_BLOCKED)
 			return false;
-		break;
 	}
 	return true;
 }
