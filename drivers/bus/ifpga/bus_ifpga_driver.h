@@ -21,8 +21,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define IFPGA_BUS_NAME ifpga
-
 /* Forward declarations */
 struct rte_afu_device;
 struct rte_afu_driver;

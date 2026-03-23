@@ -1823,7 +1823,7 @@ ifpga_cfg_probe(struct rte_vdev_device *vdev)
 
 	snprintf(dev_name, RTE_RAWDEV_NAME_MAX_LEN, "%d|%s",
 		args.port, args.bdf);
-	ret = rte_eal_hotplug_add(RTE_STR(IFPGA_BUS_NAME),
+	ret = rte_eal_hotplug_add(vdev->device.devargs->bus->name,
 			dev_name, vdev->device.devargs->args);
 	if (ret) {
 		rte_free(ifpga_dev->vdev_name[i]);

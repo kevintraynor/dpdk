@@ -220,7 +220,7 @@ ifpga_scan(void)
 	struct rte_afu_device *afu_dev = NULL;
 
 	/* for FPGA devices we scan the devargs_list populated via cmdline */
-	RTE_EAL_DEVARGS_FOREACH(IFPGA_ARG_NAME, devargs) {
+	RTE_EAL_DEVARGS_FOREACH(rte_ifpga_bus.name, devargs) {
 		if (devargs->bus != &rte_ifpga_bus)
 			continue;
 
@@ -516,5 +516,5 @@ static struct rte_bus rte_ifpga_bus = {
 	.parse       = ifpga_parse,
 };
 
-RTE_REGISTER_BUS(IFPGA_BUS_NAME, rte_ifpga_bus);
+RTE_REGISTER_BUS(ifpga, rte_ifpga_bus);
 RTE_LOG_REGISTER_DEFAULT(ifpga_bus_logtype, NOTICE);
