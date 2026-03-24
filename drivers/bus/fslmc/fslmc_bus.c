@@ -254,6 +254,7 @@ rte_fslmc_parse(const char *name, void *addr)
 		/* If either of "fslmc" or "name" are starting part */
 		if (!strncmp(name, rte_fslmc_bus.bus.name, strlen(rte_fslmc_bus.bus.name)) ||
 		   (!strncmp(name, "name", strlen("name")))) {
+			sep++;
 			goto jump_out;
 		} else {
 			DPAA2_BUS_DEBUG("Invalid device for matching (%s).",
